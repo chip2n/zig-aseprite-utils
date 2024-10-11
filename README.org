@@ -10,7 +10,8 @@ if you need something else, let me know (or submit a PR).
 
 ** Usage
 
-Add the dependency to your ~build.zig.zon~:
+Add module to your projects ~build.zig.zon~ file (replacing ~<COMMIT>~ with the
+commit you want to use and ~<HASH>~ with the associated hash):
 
 #+begin_src zig
 .{
