@@ -18,7 +18,7 @@ Add the dependency to your ~build.zig.zon~:
     .version = "1.0.0",
     .dependencies = .{
         .aseprite = .{
-            .url = "https://github.com/chip2n/zig-aseprite-utils/archive/<COMMIT>.tar.gz",
+            .url = "git+https://github.com/chip2n/zig-aseprite-utils.git#<COMMIT>",
             .hash = "<HASH>",
         },
     },
