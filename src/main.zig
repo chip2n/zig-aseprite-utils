@@ -73,7 +73,6 @@ pub fn main() !void {
         \\const std = @import("std");
         \\const Rect = struct { x: u32, y: u32, w: u32, h: u32 };
         \\
-        \\pub const Sprite = std.meta.FieldEnum(@TypeOf(sprites));
         \\pub const SpriteData = struct {
         \\    name: []const u8,
         \\    bounds: Rect,
@@ -88,7 +87,15 @@ pub fn main() !void {
         \\}
     );
     _ = try out.write("\n");
-    _ = try out.write("pub const sprites = .{\n");
+
+    // Write sprite IDs as enum
+    _ = try out.write("pub const Sprite = enum {\n");
+    for (data.meta.slices) |s| {
+        try out.print("    {s},\n", .{s.name});
+    }
+    _ = try out.write("};\n");
+
+    _ = try out.write("pub const sprites: std.enums.EnumFieldStruct(Sprite, SpriteData, null) = .{\n");
     for (data.meta.slices) |s| {
         const b = s.keys[0].bounds;
         try out.print("    .{s} = SpriteData{{\n", .{s.name});
