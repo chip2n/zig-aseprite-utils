@@ -24,16 +24,16 @@ const AsepriteResult = struct {
 pub fn exportAseprite(b: *std.Build, ase: *std.Build.Step.Compile, ase_file_path: LazyPath) AsepriteResult {
     const export_cmd = b.addSystemCommand(&.{ "aseprite", "-b" });
     export_cmd.addFileArg(ase_file_path);
-    const json_out = export_cmd.addPrefixedOutputFileArg("--data=", "tiles.json");
+    const json_out = export_cmd.addPrefixedOutputFileArg("--data=", "sprites.json");
     export_cmd.addArgs(&.{ "--format", "json-array" });
-    const img_out = export_cmd.addPrefixedOutputFileArg("--sheet=", "tiles.png");
+    const img_out = export_cmd.addPrefixedOutputFileArg("--sheet=", "sprites.png");
     export_cmd.addArg("--list-slices");
 
     var ase_run = b.addRunArtifact(ase);
     ase_run.addFileArg(json_out);
     ase_run.step.dependOn(&export_cmd.step);
     return .{
-        .img_data = ase_run.addOutputFileArg("sprite.zig"),
+        .img_data = ase_run.addOutputFileArg("sprites.zig"),
         .img_path = img_out,
     };
 }
