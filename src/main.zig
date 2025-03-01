@@ -31,6 +31,7 @@ pub const SliceKey = struct {
     frame: usize,
     bounds: Rect,
     center: ?Rect = null,
+    pivot: ?Point = null,
 };
 
 pub const Rect = struct {
@@ -43,6 +44,11 @@ pub const Rect = struct {
 pub const Size = struct {
     w: u32,
     h: u32,
+};
+
+pub const Point = struct {
+    x: u32,
+    y: u32,
 };
 
 pub fn parse(allocator: std.mem.Allocator, data: []const u8) !AsepriteData {
@@ -72,11 +78,13 @@ pub fn main() !void {
     _ = try out.write(
         \\const std = @import("std");
         \\const Rect = struct { x: u32, y: u32, w: u32, h: u32 };
+        \\const Point = struct { x: u32, y: u32 };
         \\
         \\pub const SpriteData = struct {
         \\    name: []const u8,
         \\    bounds: Rect,
         \\    center: ?Rect = null,
+        \\    pivot: ?Point = null,
         \\};
     );
     _ = try out.write("\n");
@@ -103,6 +111,9 @@ pub fn main() !void {
         try out.print("        .bounds = .{{ .x = {}, .y = {}, .w = {}, .h = {} }},\n", .{ b.x, b.y, b.w, b.h });
         if (s.keys[0].center) |c| {
             try out.print("        .center = .{{ .x = {}, .y = {}, .w = {}, .h = {} }},\n", .{ c.x, c.y, c.w, c.h });
+        }
+        if (s.keys[0].pivot) |p| {
+            try out.print("        .pivot = .{{ .x = {}, .y = {} }},\n", .{ p.x, p.y });
         }
         _ = try out.write("    },\n");
     }
