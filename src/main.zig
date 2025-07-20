@@ -67,7 +67,8 @@ pub fn main() !void {
 
     var output_file = try std.fs.cwd().createFile(output_path, .{});
     defer output_file.close();
-    const out = output_file.writer();
+    var buffer: [1024]u8 = undefined;
+    var out = output_file.writer(&buffer);
 
     // Parse Aseprite JSON data
     const file = try std.fs.openFileAbsolute(json_path, .{});
@@ -75,7 +76,7 @@ pub fn main() !void {
     const json = try file.readToEndAlloc(arena.allocator(), 1 << 30);
     const data = try parse(arena.allocator(), json);
 
-    _ = try out.write(
+    _ = try out.interface.write(
         \\const std = @import("std");
         \\const Rect = struct { x: u32, y: u32, w: u32, h: u32 };
         \\const Point = struct { x: u32, y: u32 };
@@ -87,37 +88,37 @@ pub fn main() !void {
         \\    pivot: ?Point = null,
         \\};
     );
-    _ = try out.write("\n");
-    _ = try out.write(
+    _ = try out.interface.write("\n");
+    _ = try out.interface.write(
         \\const sprite_arr = std.enums.EnumArray(Sprite, SpriteData).init(sprites);
         \\pub fn get(sprite: Sprite) SpriteData {
         \\    return sprite_arr.get(sprite);
         \\}
     );
-    _ = try out.write("\n");
+    _ = try out.interface.write("\n");
 
     // Write sprite IDs as enum
-    _ = try out.write("pub const Sprite = enum {\n");
+    _ = try out.interface.write("pub const Sprite = enum {\n");
     for (data.meta.slices) |s| {
-        try out.print("    {s},\n", .{s.name});
+        try out.interface.print("    {s},\n", .{s.name});
     }
-    _ = try out.write("};\n");
+    _ = try out.interface.write("};\n");
 
-    _ = try out.write("pub const sprites: std.enums.EnumFieldStruct(Sprite, SpriteData, null) = .{\n");
+    _ = try out.interface.write("pub const sprites: std.enums.EnumFieldStruct(Sprite, SpriteData, null) = .{\n");
     for (data.meta.slices) |s| {
         const b = s.keys[0].bounds;
-        try out.print("    .{s} = SpriteData{{\n", .{s.name});
-        try out.print("        .name = \"{s}\",\n", .{s.name});
-        try out.print("        .bounds = .{{ .x = {}, .y = {}, .w = {}, .h = {} }},\n", .{ b.x, b.y, b.w, b.h });
+        try out.interface.print("    .{s} = SpriteData{{\n", .{s.name});
+        try out.interface.print("        .name = \"{s}\",\n", .{s.name});
+        try out.interface.print("        .bounds = .{{ .x = {}, .y = {}, .w = {}, .h = {} }},\n", .{ b.x, b.y, b.w, b.h });
         if (s.keys[0].center) |c| {
-            try out.print("        .center = .{{ .x = {}, .y = {}, .w = {}, .h = {} }},\n", .{ c.x, c.y, c.w, c.h });
+            try out.interface.print("        .center = .{{ .x = {}, .y = {}, .w = {}, .h = {} }},\n", .{ c.x, c.y, c.w, c.h });
         }
         if (s.keys[0].pivot) |p| {
-            try out.print("        .pivot = .{{ .x = {}, .y = {} }},\n", .{ p.x, p.y });
+            try out.interface.print("        .pivot = .{{ .x = {}, .y = {} }},\n", .{ p.x, p.y });
         }
-        _ = try out.write("    },\n");
+        _ = try out.interface.write("    },\n");
     }
-    _ = try out.write("};\n");
+    _ = try out.interface.write("};\n");
 }
 
 test "aseprite" {
