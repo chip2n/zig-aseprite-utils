@@ -119,6 +119,8 @@ pub fn main() !void {
         _ = try out.interface.write("    },\n");
     }
     _ = try out.interface.write("};\n");
+
+    try out.interface.flush();
 }
 
 test "aseprite" {
